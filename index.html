@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>WEB WORKER</title>
+
+
+</head>
+<body>
+
+
+    <button onclick="startWorker()">Worker</button>
+    <div id="result"></div>
+    <div id="time"></div>
+
+
+    <script type="text/javascript">
+        // inatializing web worker
+        let myWorker = new Worker('worker.js');
+
+
+        var startWorker = function () {
+            // sending message to webworker to start
+            myWorker.postMessage(
+                {}
+                );
+
+            console.log('data have send to the worker');
+        };
+
+
+        myWorker.onmessage = function (e) {
+            document.getElementById("result").innerHTML = "UTC: "+e.data;
+
+            myWorker.terminate();
+        };
+
+
+        setInterval(function () {
+
+            let req = new XMLHttpRequest();
+
+
+            req.onreadystatechange = function () {
+                if(
+                    req.readyState === 4 && req.status === 200
+                )
+                {
+                    document.getElementById("time").innerHTML = `EST: ${
+                            JSON.parse(req.responseText).currentDateTime
+                        }`
+                }
+            };
+
+
+            req.open('GET','http://worldclockapi.com/api/json/est/now');
+            req.send(null);
+
+        },3000);
+    </script>
+
+</body>
+</html>
